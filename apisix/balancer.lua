@@ -341,8 +341,6 @@ function _M.run(route, ctx, plugin_funcs)
             return core.response.exit(502)
         end
 
-        ctx.picked_server = server
-
         local header_changed
         local pass_host = ctx.pass_host
         if pass_host == "node" and balancer.recreate_request then
@@ -354,7 +352,10 @@ function _M.run(route, ctx, plugin_funcs)
             end
         end
 
+        ctx.picked_server = server
         local _, run = plugin_funcs("before_proxy")
+        ctx.picked_server = nil
+
         -- always recreate request as the request may be changed by plugins
         if (run or header_changed) and balancer.recreate_request then
             balancer.recreate_request()
